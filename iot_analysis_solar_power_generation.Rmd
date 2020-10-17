@@ -56,12 +56,16 @@ plant_1_generation_tbl <- clean_generation_input_tibble(data = plant_1_generatio
 plant_2_generation_tbl <- clean_generation_input_tibble(data = plant_2_generation_tbl, date_type = 'type_2')
 ```
 
+___
+
 # Articles in this Series
 
 1. Introduction and exploratory data analysis
 2. Inverter segmentation analysis
 3. Forecasting power plant energy generation
 4. Summary of findings
+
+___
 
 # Introduction
 
@@ -82,6 +86,8 @@ The user who added this dataset mentions that there are three areas of concern f
 3. Can we identify faulty or suboptimally performing equipment?
 
 These questions will be addressed in future articles, but before that the data must first be explored. If you are interested in following along the [solar panel generation dataset is available here!](https://www.kaggle.com/anikannal/solar-power-generation-data)
+
+___
 
 # Weather Data Analysis
 This dataset includes weather data for each of two power plants, the measurements are collected from a single temperature sensor that provides the following:
@@ -184,7 +190,7 @@ prepare_weather_data <- function(data) {
 }
 ```
 
-# Environmental Visualizations {.tabset .tabset-fade .tabset-pills}
+## Environmental Visualizations {.tabset .tabset-fade .tabset-pills}
 
 ```{r, heatmap functions, echo = TRUE}
 # Average hourly ambient temperature heatmap ----
@@ -268,15 +274,11 @@ plot_irradiation_heatmap <- function(data, plant_name, date_format = '%B %d, %Y'
 }
 ```
 
-## Plant 1
-
-###  
+### Plant 1
 
 ```{r, ambient heatmap 1}
 plot_ambient_temp_heatmap(data = plant_1_weather_tbl, plant_name = 'Plant 1', interactive = params$interactive)
 ```
-
-### 
 
 ```{r, irradiation heatmap 1}
 plot_irradiation_heatmap(data = plant_1_weather_tbl, plant_name = 'Plant 1', interactive = params$interactive)
@@ -284,15 +286,11 @@ plot_irradiation_heatmap(data = plant_1_weather_tbl, plant_name = 'Plant 1', int
 
 In the heatmaps above we can see plant 1 has days with missing weather data, this could be due to sensor issues, but should not present an issue with the analysis and could be easily corrected via linear interpolation. The heatmap makes it clear that the location of plant 1 has temperatures which begin to increase between 8-10am, peak between 12-3pm, and begin tapering off after 6pm. 
 
-## Plant 2
-
-###
+### Plant 2
 
 ```{r, ambient heatmap 2}
 plot_ambient_temp_heatmap(data = plant_2_weather_tbl, plant_name = 'Plant 2', interactive = params$interactive)
 ```
-
-###
 
 ```{r, irradiation heatmap 2}
 plot_irradiation_heatmap(data = plant_2_weather_tbl, plant_name = 'Plant 2', interactive = params$interactive)
@@ -300,7 +298,7 @@ plot_irradiation_heatmap(data = plant_2_weather_tbl, plant_name = 'Plant 2', int
 
 In the heatmaps above, plant 2 does not appear to have any missing data. However, each 15 minute sample within an hour was averaged together, so this means we could still have partial hours of missing data. Plant 2 appears to have warmer temperatures that persist out into the evening, especially in the earlier half of the dataset. The temperatures also appear to start warming up a bit earlier in the day. When comparing plant 1 and plant 2, the latter appears to be in a different location that might have a warmer climate and longer days, this might directly impact the electricity production since the sun appears more active longer in the day. 
 
-# Missing Weather Data {.tabset .tabset-fade .tabset-pills}
+## Missing Data {.tabset .tabset-fade .tabset-pills}
 
 Since missing data was observed, it is good practice to figure out exactly how much and when the data was missing from. We can easily take the difference between the next and current timestamps, then filter where the difference is greater than the sample rate of 15 minutes. This produces a dataset describing periods of missing weather data.
 
@@ -329,9 +327,7 @@ find_missing_weather_periods <- function(data) {
 }
 ```
 
-## Plant 1
-
-###
+### Plant 1
 
 ```{r, missing weather data 1}
 find_missing_weather_periods(data = plant_1_weather_tbl) %>%
@@ -348,9 +344,7 @@ find_missing_weather_periods(data = plant_1_weather_tbl) %>%
 
 As we saw in the weather heatmap, plant 1 has quite a few periods of missing data, some which appear to stretch over seven hours. It's interesting to note that the periods of missing data are of inconsistent lengths, this is worth further investigation and might be an indicator that there is an intermittent issue with the sensor. It would be worth sharing these findings with subject matter experts (SMEs) to get more information about the potential cause. 
 
-## Plant 2
-
-###
+### Plant 2
 
 ```{r, missing weather data 2}
 find_missing_weather_periods(data = plant_2_weather_tbl) %>%
@@ -367,7 +361,7 @@ find_missing_weather_periods(data = plant_2_weather_tbl) %>%
 
 It turns out that plant 2 does have some missing weather data. However, they are periods less than an hour, so they were hidden by taking the average measurement for each 15 minute sample of each hour. It's interesting that each period of missing data for plant 2 is exactly 30 minutes, and that they are often from the latter second half of the day. 
 
-# Ambient vs. Module Temperature {.tabset .tabset-fade .tabset-pills}
+## Ambient vs. Module Temperature {.tabset .tabset-fade .tabset-pills}
 
 The weather datasets for each plant also include module temperature, which is a measurement of the solar panel face next to the temperature sensor. We can compare the average hourly ambient and module temperature over the entire date range of data available, we can then plot the two series against each other. This visualization should make it easier to see what time of day peak temperature is observed.
 
@@ -421,9 +415,7 @@ plot_avg_hourly_ambient_module_temp <- function(data, plant_name, interactive = 
 }
 ```
 
-## Plant 1
-
-###
+### Plant 1
 
 ```{r, average hourly temperature 1}
 plot_avg_hourly_ambient_module_temp(data = plant_1_weather_tbl, plant_name = 'Plant 1', interactive = params$interactive)
@@ -431,15 +423,16 @@ plot_avg_hourly_ambient_module_temp(data = plant_1_weather_tbl, plant_name = 'Pl
 
 For plant 1, the ambient temperature series appears to begin its ascent around 6am peaking around 2pm, before returning to a low after 10pm. In contrast, the module temperature series has a peak of 124.6 degrees farenheit around noon. It's interesting that the module temperature is cooler than the ambient temperature in the early and late stages of the day.
 
-## Plant 2
-
-###
+### Plant 2
 
 ```{r, average hourly temperature 2}
 plot_avg_hourly_ambient_module_temp(data = plant_2_weather_tbl, plant_name = 'Plant 2', interactive = params$interactive)
 ```
 
 For plant 2, the ambient temperature also begins it's ascent around 6am and peaks around 2pm. The module temperature again peaks at noon with a temperature of 125.7 degrees farenheit. Even though the ambient temperature at plant two was nearly five degrees higher on average than plant 1, the peak module temperature is just over a degree higher. The environment where plant 2 is located has a decrease in ambient and module temperature from just after midnight until 6am, this seems to indicate that the warmth of the day is shifted forward in time compared to plant 1.
+
+##
+___ 
 
 # Solar Power Plant Energy Generation Analysis
 
@@ -510,7 +503,7 @@ compute_generation_statistics_by_plant() %>%
 
 It appears that plant 1 inverters process considerably more DC power, however, there tends to be massive loss during conversion to AC power. This is seen in the nearly 9.78% conversion success rate for plant 1. In contrast, plant 2 inverters appear to have minimal loss during power conversion, at 97.8% success. Both power plants have similar daily yields, with plant 1 having a bit more day to day variation. 
 
-# Average Daily AC and DC Power {.tabset .tabset-fade .tabset-pills}
+## Average Daily AC and DC Power {.tabset .tabset-fade .tabset-pills}
 
 Each plants DC and AC power conversion behavior can be visualized by averaging sensor values during the same sampling period each day over the series.
 
@@ -578,9 +571,7 @@ plot_ac_dc_by_plant <- function(data, plant_name, interactive = TRUE) {
 }
 ```
 
-## Plant 1
-
-###
+### Plant 1
 
 ```{r, ac dc by plant 1}
 plot_ac_dc_by_plant(data = plant_1_generation_tbl, plant_name = 'Plant 1', interactive = params$interactive)
@@ -588,9 +579,7 @@ plot_ac_dc_by_plant(data = plant_1_generation_tbl, plant_name = 'Plant 1', inter
 
 Plant 1 clearly generates a large amount of DC power during the middle portion of the day. During this period, there is an increase in AC power converted by the collection of inverter. However, the gap between DC and AC power showcases the loss of energy during the conversion process. At this point it is not clear if this indicates there are wide spread issues with the inverters at plant 1, or if this is just the combined behavior of group of suboptimal inverters.
 
-## Plant 2
-
-###
+### Plant 2
 
 ```{r, ac dc by plant 2}
 plot_ac_dc_by_plant(data = plant_2_generation_tbl, plant_name = 'Plant 2', interactive = params$interactive)
@@ -598,7 +587,7 @@ plot_ac_dc_by_plant(data = plant_2_generation_tbl, plant_name = 'Plant 2', inter
 
 Plant 2 shows tight grouping between the DC and AC power. If we compare the y-axis of the plot of plant 1 and plant 2, the latter has much lower DC power values and a bit lower AC power values. During the middle portion of the day, both the DC and AC power values at plant 2 appear to plateau and oscillate between high and lower values. Although plant 2 does not appear to process the volume of DC power processed by plant 1, it looks like the conversion success rate is much higher. 
 
-# Average Daily Power Converstion Percentage {.tabset .tabset-fade .tabset-pills}
+## Average Daily Power Converstion Percentage {.tabset .tabset-fade .tabset-pills}
 
 To investigate the DC to AC power conversion success rate in more depth, the conversion percent can be directly computed by dividing the average AC power into the average DC power. The resulting values can be visualized as a time series over the course of the day. 
 
@@ -654,9 +643,7 @@ plot_conversion_pct_by_plant <- function(data, plant_name, interactive = TRUE) {
 }
 ```
 
-## Plant 1
-
-###
+### Plant 1
 
 ```{r, power conversion by plant 1}
 plot_conversion_pct_by_plant(data = plant_1_generation_tbl, plant_name = 'Plant 1', interactive = params$interactive)
@@ -664,9 +651,7 @@ plot_conversion_pct_by_plant(data = plant_1_generation_tbl, plant_name = 'Plant 
 
 As expected, plant 1 shows a low conversion success rate, with maximum of 9.8% on average occurring during the warmer portions of the day. It's interesting that the conversion success rate dips down a very small amount as we move into mid day. This seems to indicate that the inverters efficiency diminishes slightly during the hottest part of the day, this might be due to temperature overloading on the solar panel surface. 
 
-## Plant 2
-
-###
+### Plant 2
 
 ```{r, power conversion by plant 2}
 plot_conversion_pct_by_plant(data = plant_2_generation_tbl, plant_name = 'Plant 2', interactive = params$interactive)
@@ -674,11 +659,15 @@ plot_conversion_pct_by_plant(data = plant_2_generation_tbl, plant_name = 'Plant 
 
 The conversion success rate series for plant 2 shows a similar shape as for plant 1, with a dip in success rate during the hottest part of the day. The y-axis tells a much better story for plant 2 with maximum of 98.1% conversion success rate on average. Based on this data, plant 2 seems to be performing more optimally than plant 1 when it comes to energy conversion.
 
+##
+
+___
+
 # Solar Power Plant Inverter Analysis
 
 Now that each of the two solar power plants have been characterized from a high level, we can dive deeper and explore how each inverter contributes to the overall efficiency of each plant.
 
-# Missing Power Generation Data {.tabset .tabset-fade .tabset-pills}
+## Missing Data {.tabset .tabset-fade .tabset-pills}
 
 Due to the fact there was missing weather data it is worth checking out if there are periods of missing data in the energy generation dataset. In the last section the contributions of each inverter was averaged, so it is appropriate to apply this step when evaluating inverters individually. Only the top 10 periods sorted in descending order by duration are displayed for simplicity. 
 
@@ -710,9 +699,7 @@ find_missing_generation_periods <- function(data) {
 }
 ```
 
-## Plant 1
-
-###
+### Plant 1
 
 ```{r, missing generation data 1}
 find_missing_generation_periods(data = plant_1_generation_tbl) %>%
@@ -740,9 +727,7 @@ find_missing_generation_periods(data = plant_1_generation_tbl) %>%
 
 Plant 1 appears to have multiple inverters with 540 minutes of missing data. It is interesting that each of the top 10 periods by inverter occurred on the same day and range of time. This makes it seem like something might of happened in the location plant 1 is located, possibly weather anomalies, or lack of operational power. If we look back to the missing weather data, there is missing data from this same time period. This is something that would need to be brought to the attention of SMEs at this plant.  
 
-## Plant 2
-
-###
+### Plant 2
 
 ```{r, missing generation data 2}
 find_missing_generation_periods(data = plant_2_generation_tbl) %>%
@@ -769,7 +754,7 @@ find_missing_generation_periods(data = plant_2_generation_tbl) %>%
 
 Plant 2 has four inverters with 12630 minutes of missing data spread over nearly nine days, which means that around 25% of the data from this plant is missing for these inverters. To make matters worse, two of these inverters also have another period of missing data totaling 975 minutes.
 
-# Average Daily DC and AC Power by Inverter {.tabset .tabset-fade .tabset-pills}
+## Average Daily DC and AC Power by Inverter {.tabset .tabset-fade .tabset-pills}
 
 Earlier we evaluated the average daily DC and AC power by plant, we can break that data out by inverter ID to get a feel for which inverters seem to be underproducing. 
 
@@ -839,9 +824,7 @@ plot_ac_dc_by_inverter <- function(data, plant_name, interactive = TRUE) {
 }
 ```
 
-## Plant 1
-
-###  
+### Plant 1
 
 ```{r, ac dc by inverter 1}
 plot_ac_dc_by_inverter(data = plant_1_generation_tbl, plant_name = 'Plant 1', interactive = params$interactive)
@@ -854,9 +837,7 @@ Most of the inverters from plant 1 seem to be grouped tightly together when eval
 
 These are inverter IDs that we should keep note of so we can refer back to this chart after applying segmentation to the inverters at plant 1, as these will likely be in a group of inverters that need further investigation.
 
-## Plant 2
-
-###  
+### Plant 2
 
 ```{r, ac dc by inverter 2}
 plot_ac_dc_by_inverter(data = plant_2_generation_tbl, plant_name = 'Plant 2', interactive = params$interactive)
@@ -869,7 +850,7 @@ The inverters for plant 2 diverge from each other as we move into the middle por
 - rrq4fwE8jgrTyWY
 - LywnQax7tkwH5Cb
 
-# Average Daily Power Converstion Percentage by Inverter {.tabset .tabset-fade .tabset-pills}
+## Average Daily Power Converstion Percentage by Inverter {.tabset .tabset-fade .tabset-pills}
 
 The conversion success rate data can also be broken out by inverter ID in hopes to find specific inverters which are experiencing a high level of loss during DC to AC energy conversion. 
 
@@ -927,9 +908,8 @@ plot_conversion_pct_by_inverter <- function(data, plant_name, interactive = TRUE
     }
 }
 ```
-## Plant 1
 
-###  
+### Plant 1
 
 ```{r, power convertion by inverter 1}
 plot_conversion_pct_by_inverter(data = plant_1_generation_tbl, plant_name = 'Plant 1', interactive = params$interactive)
@@ -941,9 +921,7 @@ Plant 1 has similar energy conversion success behavior between inverters. There 
 - sjndEbLyjtCKgGv
 
 
-## Plant 2
-
-###  
+### Plant 2
 
 ```{r, power conversion by inverter 2}
 plot_conversion_pct_by_inverter(data = plant_2_generation_tbl, plant_name = 'Plant 2', interactive = params$interactive)
@@ -955,7 +933,7 @@ Plant 2 shows a lot more divergence between inverters, with one inverter in part
 
 It's also interesting that the inverter which has the lowest average DC and AC power (Quc1TzYxW2pYoWX) appears to have the highest rate of successful conversion during the middle portion of the day.
 
-# Average Daily Yield by Inverter {.tabset .tabset-fade .tabset-pills}
+## Average Daily Yield by Inverter {.tabset .tabset-fade .tabset-pills}
 
 The final column of interest in the energy generation dataset is __daily_yield__, this value represents the cumulative power generated during a given day. Unfortunately after visualizing this measurement it seemed like the cumulative sum was not being reset at the day transition boundary, this was especially true for plant 2. Due to this discrepancy the cumulative AC power generated per day was computed and visualized. This running sum of AC power generated should give a good idea of the top and bottom performing inverters. 
 
@@ -1017,9 +995,7 @@ plot_avg_daily_yield_by_inverter <- function(data, plant_name, interactive = TRU
 }
 ```
 
-## Plant 1
-
-###  
+### Plant 1
 
 ```{r, daily yield by inverter 1}
 plot_avg_daily_yield_by_inverter(data = plant_1_generation_tbl, plant_name = 'Plant 1', interactive = params$interactive)
@@ -1029,9 +1005,7 @@ For plant 1, we see the same two inverter IDs identified as potentially underper
 
 - adLQvlD726eNBSB
 
-## Plant 2
-
-###  
+### Plant 2
 
 ```{r, daily yield by inverter 2}
 plot_avg_daily_yield_by_inverter(data = plant_2_generation_tbl, plant_name = 'Plant 2', interactive = params$interactive)
@@ -1042,6 +1016,10 @@ Plant 2 has much less grouping in between the various inverted in terms of avera
 - Mx2yZCDsyf6DPfv
 - 4UPUqMRk7TRMgml
 - Qf4GUc1pJu5T6c6
+
+##
+
+___
 
 # Summary
 
